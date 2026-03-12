@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leandix Cortex - Openclaw Gateway</title>
+    <meta name="description"
+        content="Leandix Cortex Gateway - Intelligent AI model routing with automatic complexity classification.">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-brand">
+                <div class="logo">L</div>
+                Leandix Cortex Gateway
+            </a>
+            <div class="navbar-links">
+                <a href="/" class="active">Home</a>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/login" class="btn btn-ghost btn-sm">Login</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="container">
+        <section class="hero">
+            <div class="hero-badge">
+                <span class="dot" id="statusDot"></span>
+                <span id="statusText">Checking...</span>
+            </div>
+            <h1>Intelligent <span class="gradient-text">AI Gateway</span></h1>
+            <p>Monitor and manage your OpenClaw models with auto-routing proxy that classifies task complexity and
+                routes to
+                the optimal model.
+            </p>
+        </section>
+
+        <!-- Status Cards -->
+        <div class="card-grid" id="statusCards">
+            <div class="card">
+                <div class="card-icon indigo">⚡</div>
+                <div class="card-label">Status</div>
+                <div class="card-value" id="gatewayStatus">
+                    <div class="skeleton" style="width: 80px; height: 28px;"></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon emerald">📊</div>
+                <div class="card-label">Total Requests</div>
+                <div class="card-value" id="totalRequests">
+                    <div class="skeleton" style="width: 60px; height: 28px;"></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-icon cyan">⏱️</div>
+                <div class="card-label">Uptime</div>
+                <div class="card-value" id="uptime">
+                    <div class="skeleton" style="width: 100px; height: 28px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Info -->
+        <div class="section-header">
+            <h2>🤖 Configured Models</h2>
+        </div>
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-icon purple">🚀</div>
+                <div class="card-label">Simple Tasks</div>
+                <div class="card-value" id="simpleModel" style="font-size: 1.1rem;">
+                    <div class="skeleton" style="width: 160px; height: 22px;"></div>
+                </div>
+                <div class="card-subtitle">Fast responses for everyday coding tasks</div>
+            </div>
+            <div class="card">
+                <div class="card-icon amber">🧠</div>
+                <div class="card-label">Complex Tasks</div>
+                <div class="card-value" id="complexModel" style="font-size: 1.1rem;">
+                    <div class="skeleton" style="width: 160px; height: 22px;"></div>
+                </div>
+                <div class="card-subtitle">Deep reasoning for architecture & debugging</div>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="section-header" style="margin-top: 40px;">
+            <h2>⚙️ How It Works</h2>
+        </div>
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-icon indigo">1️⃣</div>
+                <div class="card-label">Classify</div>
+                <div class="card-subtitle">Heuristic + LLM classifier determines if the task is simple or complex</div>
+            </div>
+            <div class="card">
+                <div class="card-icon purple">2️⃣</div>
+                <div class="card-label">Route</div>
+                <div class="card-subtitle">Automatically routes to the optimal model based on complexity</div>
+            </div>
+            <div class="card">
+                <div class="card-icon emerald">3️⃣</div>
+                <div class="card-label">Respond</div>
+                <div class="card-subtitle">OpenAI-compatible API with SSE streaming and language detection</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Cortex Gateway — Leandix &copy; 2026</p>
+    </footer>
+
+    <script src="/static/js/home.js"></script>
+</body>
+
+</html>

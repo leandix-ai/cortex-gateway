@@ -1,19 +1,30 @@
 """
-config.py — Centralised configuration for Cortex Context Router.
+config.py — Centralised configuration for Cortex Gateway.
 
-Contains:
-  - Model defaults & pipeline thresholds
+Loads settings from .env and contains:
+  - Model config from environment
   - Logging setup
-  - System prompts (_SYSTEM_HAIKU, _SYSTEM_SONNET)
+  - System prompts (_SYSTEM_SIMPLE, _SYSTEM_COMPLEX)
   - Routing patterns (_COMPLEX_PATTERNS, _SIMPLE_PATTERNS, _OVERRIDE_SIMPLE_PATTERNS)
-  - Language detection data (_LANG_CHAR_PATTERNS, _VI_KEYWORD_RE, _LANG_NAMES)
+  - Language detection data (_LANG_CHAR_PATTERNS, _VI_KEYWORD_RE, LANG_NAMES)
   - Classifier prompt (_CLASSIFY_SYSTEM)
+  - JWT secret
 
 No business logic lives here — only data and initialisation.
 """
 
 import logging
+import os
 import re
+import secrets
+
+from dotenv import load_dotenv
+
+# ─────────────────────────────────────────────
+# Load .env
+# ─────────────────────────────────────────────
+
+load_dotenv()
 
 # ─────────────────────────────────────────────
 # Type alias
@@ -22,24 +33,40 @@ import re
 MessageList = list[dict]
 
 # ─────────────────────────────────────────────
-# Model defaults
+# Model config from .env
 # ─────────────────────────────────────────────
 
-# Fallback model names — overridable via X-Cortex-Model-* headers
-DEFAULT_MODEL_HAIKU  = "claude-haiku-4-5"
-DEFAULT_MODEL_SONNET = "claude-sonnet-4-5"
-MAX_TOKENS           = 8192
+SIMPLE_MODEL_NAME     = os.getenv("SIMPLE_MODEL_NAME", "claude-haiku-4-5")
+SIMPLE_MODEL_API_KEY  = os.getenv("SIMPLE_MODEL_API_KEY", "")
+SIMPLE_MODEL_BASE_URL = os.getenv("SIMPLE_MODEL_BASE_URL", "https://api.anthropic.com")
+
+COMPLEX_MODEL_NAME     = os.getenv("COMPLEX_MODEL_NAME", "claude-sonnet-4-5")
+COMPLEX_MODEL_API_KEY  = os.getenv("COMPLEX_MODEL_API_KEY", "")
+COMPLEX_MODEL_BASE_URL = os.getenv("COMPLEX_MODEL_BASE_URL", "https://api.anthropic.com")
+
+MAX_TOKENS = 8192
 
 # ─────────────────────────────────────────────
-# Pipeline thresholds
+# Gateway config
 # ─────────────────────────────────────────────
 
-SLIDING_WINDOW_TURNS         = 12
-MIN_CACHE_CHARS              = 3000   # ~1024 tokens, Anthropic caching minimum
-TOOL_CHAIN_SUMMARY_THRESHOLD = 6      # keep context within agent loop
+GATEWAY_HOST = os.getenv("GATEWAY_HOST", "0.0.0.0")
+GATEWAY_PORT = int(os.getenv("GATEWAY_PORT", "8000"))
 
-HEURISTIC_COMPLEX_THRESHOLD  = 2
-HEURISTIC_SIMPLE_THRESHOLD   = -2
+# ─────────────────────────────────────────────
+# JWT Secret (auto-generated per instance)
+# ─────────────────────────────────────────────
+
+JWT_SECRET   = os.getenv("JWT_SECRET", secrets.token_hex(32))
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRE_HOURS = 24
+
+# ─────────────────────────────────────────────
+# Heuristic thresholds
+# ─────────────────────────────────────────────
+
+HEURISTIC_COMPLEX_THRESHOLD = 2
+HEURISTIC_SIMPLE_THRESHOLD  = -2
 
 # ─────────────────────────────────────────────
 # Logging
@@ -60,11 +87,11 @@ logging.getLogger("anthropic").setLevel(logging.INFO)
 # System prompts
 # ─────────────────────────────────────────────
 
-_SYSTEM_HAIKU = """\
+_SYSTEM_SIMPLE = """\
 <s>
   <role>
     You are Cortex, a fast and precise coding assistant optimised for everyday tasks.
-    You are powered by Claude Haiku and routed here because this task is straightforward.
+    You are powered by a fast model and routed here because this task is straightforward.
   </role>
 
   <thinking>
@@ -92,7 +119,7 @@ _SYSTEM_HAIKU = """\
   </output_format>
 </s>"""
 
-_SYSTEM_SONNET = """\
+_SYSTEM_COMPLEX = """\
 <s>
   <role>
     You are Cortex, a senior software engineer and architect.
@@ -128,11 +155,11 @@ _SYSTEM_SONNET = """\
   </output_format>
 </s>"""
 
-_PROMPT_TIER: dict[str, str] = {
-    "haiku":  _SYSTEM_HAIKU,
-    "sonnet": _SYSTEM_SONNET,
-    "opus":   _SYSTEM_SONNET,
+PROMPT_TIER: dict[str, str] = {
+    "simple":  _SYSTEM_SIMPLE,
+    "complex": _SYSTEM_COMPLEX,
 }
+
 
 # ─────────────────────────────────────────────
 # Router — heuristic patterns
@@ -183,7 +210,6 @@ Respond with exactly one word: SIMPLE or COMPLEX. No explanation."""
 # Language detection
 # ─────────────────────────────────────────────
 
-# Script/character-range patterns — fast, no external deps
 _LANG_CHAR_PATTERNS: list[tuple[str, re.Pattern]] = [
     ("vi", re.compile(r"[àáảãạăắằẳẵặâấầẩẫậđèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵ]", re.IGNORECASE)),
     ("zh", re.compile(r"[\u4e00-\u9fff]")),
@@ -194,13 +220,12 @@ _LANG_CHAR_PATTERNS: list[tuple[str, re.Pattern]] = [
     ("ru", re.compile(r"[\u0400-\u04ff]")),
 ]
 
-# Common Vietnamese words — catches messages written without diacritics
 _VI_KEYWORD_RE = re.compile(
     r"\b(bạn|tôi|mình|cho|hãy|làm|thế|nào|cái|này|đây|được|không|có|với|trong|của|và|là|một|các|như|khi|nếu|thì|vì|để|rằng|hỏi|giúp|viết|sửa|tạo|chạy|lỗi|code|file|hàm|biến|class|module)\b",
     re.IGNORECASE,
 )
 
-_LANG_NAMES: dict[str, str] = {
+LANG_NAMES: dict[str, str] = {
     "vi": "Vietnamese",
     "zh": "Chinese",
     "ja": "Japanese",

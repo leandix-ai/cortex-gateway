@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Cortex Gateway</title>
+    <meta name="description" content="Login to Cortex Gateway admin dashboard.">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-logo">C</div>
+            <h1>Welcome Back</h1>
+            <p>Enter your admin password to continue</p>
+
+            <div class="alert alert-error" id="errorAlert"></div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" for="password">Admin Password</label>
+                    <input type="password" id="password" class="form-input" 
+                           placeholder="Enter password" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;" id="loginBtn">
+                    Sign In
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 24px;">
+                <a href="/" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">
+                    ← Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "cortex-gateway"
+version = "0.1.0"
+description = "OpenAI-compatible AI gateway with automatic complexity-based model routing."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Leandix" },
+]
+keywords = ["anthropic", "claude", "openai", "proxy", "gateway", "llm", "ai"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = [
+    "anthropic>=0.40",
+    "openai>=1.0",
+    "fastapi>=0.100",
+    "uvicorn[standard]>=0.20",
+    "python-dotenv>=1.0",
+    "PyJWT>=2.8",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "httpx>=0.24",
+    "ruff>=0.1",
+]
+
+[project.scripts]
+cortex-gateway = "cortex_gateway.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/leandix/cortex-gateway"
+Repository = "https://github.com/leandix/cortex-gateway"
+
+[tool.hatch.build.targets.wheel]
+packages = ["cortex_gateway"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120

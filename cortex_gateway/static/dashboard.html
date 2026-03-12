@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — Cortex Gateway</title>
+    <meta name="description" content="Cortex Gateway admin dashboard — manage API keys and view activity stats.">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="/" class="navbar-brand">
+                <div class="logo">C</div>
+                Cortex Gateway
+            </a>
+            <div class="navbar-links">
+                <a href="/">Home</a>
+                <a href="/dashboard" class="active">Dashboard</a>
+                <button id="logoutBtn" onclick="clearToken(); window.location.href='/login';">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="padding-top: 40px; padding-bottom: 80px;">
+        <!-- Tabs -->
+        <div class="tabs" id="tabs">
+            <button class="tab active" data-tab="keys">🔑 API Keys</button>
+            <button class="tab" data-tab="stats">📊 Activity</button>
+            <button class="tab" data-tab="settings">⚙️ Settings</button>
+        </div>
+
+        <!-- ═══ Tab: API Keys ═══ -->
+        <div class="tab-content active" id="tab-keys">
+            <div class="section-header">
+                <h2>Client API Keys</h2>
+                <button class="btn btn-primary" onclick="showCreateKeyModal()">+ Create Key</button>
+            </div>
+
+            <div class="alert alert-success" id="keyAlert"></div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>API Key</th>
+                            <th>Created</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="keysTableBody">
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                <div class="icon">🔑</div>
+                                <p>Loading...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ Tab: Activity / Stats ═══ -->
+        <div class="tab-content" id="tab-stats">
+            <div class="section-header">
+                <h2>Activity Stats</h2>
+                <button class="btn btn-ghost btn-sm" onclick="loadStats()">↻ Refresh</button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Model</th>
+                            <th>Requests</th>
+                            <th>Input Tokens</th>
+                            <th>Output Tokens</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsTableBody">
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                <div class="icon">📊</div>
+                                <p>Loading...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ═══ Tab: Settings ═══ -->
+        <div class="tab-content" id="tab-settings">
+
+            <!-- ── Model Configuration ── -->
+            <div class="section-header">
+                <h2>🤖 Model Configuration</h2>
+            </div>
+
+            <div class="alert alert-error" id="modelErrorAlert"></div>
+            <div class="alert alert-success" id="modelSuccessAlert"></div>
+
+            <div class="card-grid" style="margin-bottom: 40px;">
+                <!-- Simple Model -->
+                <div class="card">
+                    <div class="card-icon emerald">🚀</div>
+                    <h3 style="margin-bottom: 16px;">Simple Model</h3>
+                    <div class="form-group">
+                        <label class="form-label" for="simpleProvider">Provider</label>
+                        <select id="simpleProvider" class="form-input">
+                            <option value="anthropic">Anthropic</option>
+                            <option value="openai">OpenAI</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="simpleModelName">Model Name</label>
+                        <input type="text" id="simpleModelName" class="form-input"
+                               placeholder="e.g. claude-haiku-4-5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="simpleApiKey">API Key</label>
+                        <input type="password" id="simpleApiKey" class="form-input"
+                               placeholder="Leave blank to keep current">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="simpleBaseUrl">Base URL</label>
+                        <input type="text" id="simpleBaseUrl" class="form-input"
+                               placeholder="https://api.anthropic.com">
+                    </div>
+                    <div class="card-subtitle" id="simpleCurrentKey" style="margin-top: 12px;">
+                        Current key: <code class="mono">loading...</code>
+                    </div>
+                </div>
+
+                <!-- Complex Model -->
+                <div class="card">
+                    <div class="card-icon amber">🧠</div>
+                    <h3 style="margin-bottom: 16px;">Complex Model</h3>
+                    <div class="form-group">
+                        <label class="form-label" for="complexProvider">Provider</label>
+                        <select id="complexProvider" class="form-input">
+                            <option value="anthropic">Anthropic</option>
+                            <option value="openai">OpenAI</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="complexModelName">Model Name</label>
+                        <input type="text" id="complexModelName" class="form-input"
+                               placeholder="e.g. claude-sonnet-4-5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="complexApiKey">API Key</label>
+                        <input type="password" id="complexApiKey" class="form-input"
+                               placeholder="Leave blank to keep current">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="form-label" for="complexBaseUrl">Base URL</label>
+                        <input type="text" id="complexBaseUrl" class="form-input"
+                               placeholder="https://api.anthropic.com">
+                    </div>
+                    <div class="card-subtitle" id="complexCurrentKey" style="margin-top: 12px;">
+                        Current key: <code class="mono">loading...</code>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" id="saveModelsBtn" onclick="saveModels()" style="margin-bottom: 48px;">
+                💾 Save Model Configuration
+            </button>
+
+            <hr style="border-color: var(--border-glass); margin-bottom: 32px;">
+
+            <!-- ── Change Password ── -->
+            <div class="section-header">
+                <h2>🔒 Change Admin Password</h2>
+            </div>
+
+            <div class="card" style="max-width: 480px;">
+                <div class="alert alert-error" id="pwErrorAlert"></div>
+                <div class="alert alert-success" id="pwSuccessAlert"></div>
+
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label class="form-label" for="oldPassword">Current Password</label>
+                        <input type="password" id="oldPassword" class="form-input" 
+                               placeholder="Enter current password" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" class="form-input" 
+                               placeholder="Enter new password (min 4 chars)" required minlength="4">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" class="form-input" 
+                               placeholder="Confirm new password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Key Modal -->
+    <div class="modal-overlay" id="createKeyModal">
+        <div class="modal">
+            <h3>Create Client API Key</h3>
+            <div class="form-group">
+                <label class="form-label" for="keyName">Key Name / Label</label>
+                <input type="text" id="keyName" class="form-input" placeholder="e.g. My App, Dev Team">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" onclick="hideCreateKeyModal()">Cancel</button>
+                <button class="btn btn-primary" id="createKeyBtn" onclick="createKey()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
